@@ -72,6 +72,26 @@
       showBanner: unityShowBanner,
     };
 
+  var pause = false;
+
+  function activateSDK()
+  {
+    ytgame.game.firstFrameReady();
+
+    ytgame.system.onPause(function() {PauseTest();});
+    ytgame.system.onResume(function() {ResumeTest();});
+  }
+
+  function PauseTest()
+  {
+    pause = true;
+  }
+
+  function ResumeTest()
+  {
+    pause = false;
+  }
+
     // By default, Unity keeps WebGL canvas render target size matched with
     // the DOM size of the canvas element (scaled by window.devicePixelRatio)
     // Set this to false if you want to decouple this synchronization from
@@ -186,10 +206,12 @@
       var script = document.createElement("script");
       script.src = loaderUrl;
       script.onload = () => {
-        createUnityInstance(canvas, config, (progress) => {
+        createUnityInstance(canvas, config, (progress) => 
+        {
           progressBarFull.style.width = 100 * progress + "%";
-          }).then((unityInstance) => {
+        }).then((unityInstance) => {
             unityGameInstance = unityInstance;
+          if (pause === true) unityInstance.SendMessage("YTSDKManager", "Pause");
             loadingBar.style.display = "none";
           }).catch((message) => {
             console.error(message);
